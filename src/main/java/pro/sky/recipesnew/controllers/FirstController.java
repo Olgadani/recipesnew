@@ -12,8 +12,8 @@ public class FirstController {
     @GetMapping("/info")
     public String page() {
         return "Данилова Ольга"
-                + "рецепты"
-                + "дата: 01.01.2023"
-                + "сайт с рецептами";
+                + " рецепты"
+                + " дата: 01.01.2023"
+                + " сайт с рецептами";
     }
 }
