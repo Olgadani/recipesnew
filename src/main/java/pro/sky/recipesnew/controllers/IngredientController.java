@@ -26,6 +26,7 @@ public class IngredientController {
     public Ingredient updateIngredient(@PathVariable("id") long id, @RequestBody Ingredient ingredient) {
         return ingredientService.update(id, ingredient);
     }
+    @DeleteMapping("/{id}")
     public Ingredient deleteIngredient(@PathVariable("id") long id) {
         return ingredientService.remove(id);
     }

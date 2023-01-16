@@ -1,10 +1,11 @@
 package pro.sky.recipesnew.services;
 
+import org.springframework.stereotype.Service;
 import pro.sky.recipesnew.model.Ingredient;
 
 import java.util.HashMap;
 import java.util.Map;
-
+@Service
 public class IngredientServiceimpl implements IngredientService{
     private final Map<Long, Ingredient> ingredientMap = new HashMap<>();
     private long counter = 0;
