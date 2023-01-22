@@ -6,9 +6,15 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import pro.sky.recipesnew.model.Ingredient;
 import pro.sky.recipesnew.services.IngredientService;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/ingredient")
@@ -79,6 +85,22 @@ public class IngredientController {
     })
     public Ingredient deleteIngredient(@PathVariable("id") long id) {
         return ingredientService.remove(id);
+    }
+    @GetMapping("/exportRecipes")
+    public ResponseEntity<byte[]> downloadIngredients() throws IOException {
+        byte[] bytes = ingredientService.getAllInBytes();
+        if (bytes == null) {
+            return ResponseEntity.internalServerError().build();
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .contentLength(bytes.length)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment: filename = \"ingredients.json\"")
+                .body(bytes);
+    }
+    @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void importIngredients(MultipartFile ingredients) throws IOException {
+        ingredientService.importIngredients(ingredients);
     }
 
 

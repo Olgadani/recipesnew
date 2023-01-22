@@ -5,11 +5,19 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import pro.sky.recipesnew.model.Recipe;
 import pro.sky.recipesnew.services.RecipeService;
+
+import java.io.IOException;
+import java.nio.file.Path;
+
 @RestController
 @RequestMapping("/recipe")
 @Tag(name = "Рецепты")
@@ -21,7 +29,8 @@ public class RecipeController {
         this.recipeService = recipeService;
     }
 
-    @GetMapping("/{id}")@Operation(description = "Получение нового рецепта")
+    @GetMapping("/{id}")
+    @Operation(description = "Получение нового рецепта")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     description = "Получение выполнено успешно",
@@ -71,6 +80,7 @@ public class RecipeController {
         }
         return ResponseEntity.ok(recipeService.add(recipe));
     }
+
     @DeleteMapping("/{id}")
     @Operation(description = "Удаление рецепта")
     @ApiResponses({
@@ -86,5 +96,24 @@ public class RecipeController {
     public Recipe deleteRecipe(@PathVariable("id") long id) {
         return recipeService.remove(id);
     }
+
+    @GetMapping("/exportRecipes")
+    public ResponseEntity<byte[]> downloadRecipes() throws IOException {
+        byte[] bytes = recipeService.getAllInBytes();
+        if (bytes == null) {
+            return ResponseEntity.internalServerError().build();
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .contentLength(bytes.length)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment: filename = \"recipes.json\"")
+                .body(bytes);
+    }
+
+    @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void importRecipes(MultipartFile recipes) throws IOException {
+        recipeService.importRecipes(recipes);
+    }
+
 
 }

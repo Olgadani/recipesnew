@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import pro.sky.recipesnew.model.Ingredient;
+import org.springframework.web.multipart.MultipartFile;
 import pro.sky.recipesnew.model.Recipe;
 
 import javax.annotation.PostConstruct;
@@ -22,7 +22,7 @@ public class RecipeServiceimpl implements RecipeService {
     private final Path path;
     private final ObjectMapper objectMapper;
 
-    public RecipeServiceimpl(@Value("application.file.recipes") String path) {
+    public RecipeServiceimpl(@Value("${application.file.recipes}") String path) {
         try {
             this.path = Paths.get(path);
             this.objectMapper = new ObjectMapper();
@@ -46,7 +46,7 @@ public class RecipeServiceimpl implements RecipeService {
             e.printStackTrace();
         }
     }
-    private void writeDataToFile() {
+    private void writeDataToFile(Map<Long, Recipe> recipeMap) {
         try {
             byte[] bytes = objectMapper.writeValueAsBytes(recipeMap);
             Files.write(path, bytes);
@@ -59,7 +59,7 @@ public class RecipeServiceimpl implements RecipeService {
     @Override
     public Recipe add(Recipe recipe) {
         Recipe newRecipe = recipeMap.put(counter++, recipe);
-        writeDataToFile();
+        writeDataToFile(recipeMap);
         return newRecipe;
     }
     @Override
@@ -70,7 +70,7 @@ public class RecipeServiceimpl implements RecipeService {
     public Recipe update(long id, Recipe recipe) {
         if (recipeMap.containsKey(id)) {
             Recipe newRecipe = recipeMap.put(id, recipe);
-            writeDataToFile();
+            writeDataToFile(recipeMap);
             return newRecipe;
         }
         return null;
@@ -79,8 +79,30 @@ public class RecipeServiceimpl implements RecipeService {
     public Recipe remove(long id) {
 
         Recipe recipe = recipeMap.remove(id);
-        writeDataToFile();
+        writeDataToFile(recipeMap);
         return recipe;
     }
+
+        @Override
+    public byte[] getAllInBytes() {
+        try {
+            return Files.readAllBytes(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    @Override
+    public void importRecipes(MultipartFile recipes) {
+        try {
+            Map<Long, Recipe> mapFromRequest = objectMapper.readValue(recipes.getBytes(),
+                    new TypeReference<>() {
+            });
+            writeDataToFile(mapFromRequest);
+        } catch (IOException e) {
+           e.printStackTrace();
+        }
+    }
+
 
 }
