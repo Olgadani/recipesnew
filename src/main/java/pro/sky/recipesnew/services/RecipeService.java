@@ -16,4 +16,6 @@ public interface RecipeService {
     byte[] getAllInBytes();
 
     void importRecipes(MultipartFile recipes) throws IOException;
+
+    byte[] exportTxt() throws IOException;
 }

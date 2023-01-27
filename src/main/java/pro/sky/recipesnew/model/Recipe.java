@@ -11,4 +11,16 @@ public class Recipe {
     public String getTitle() {
         return title;
     }
+
+    public int getCookingTime() {
+        return cookingTime;
+    }
+
+    public List<Ingredient> getIngredients() {
+        return ingredients;
+    }
+
+    public List<String> getSteps() {
+        return steps;
+    }
 }
