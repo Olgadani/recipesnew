@@ -87,7 +87,7 @@ public class IngredientController {
         return ingredientService.remove(id);
     }
     @GetMapping("/exportRecipes")
-    public ResponseEntity<byte[]> downloadIngredients() throws IOException {
+    public ResponseEntity<byte[]> downloadIngredients(){
         byte[] bytes = ingredientService.getAllInBytes();
         if (bytes == null) {
             return ResponseEntity.internalServerError().build();
@@ -97,9 +97,10 @@ public class IngredientController {
                 .contentLength(bytes.length)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment: filename = \"ingredients.json\"")
                 .body(bytes);
+
     }
     @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public void importIngredients(MultipartFile ingredients) throws IOException {
+    public void importIngredients(MultipartFile ingredients){
         ingredientService.importIngredients(ingredients);
     }
 

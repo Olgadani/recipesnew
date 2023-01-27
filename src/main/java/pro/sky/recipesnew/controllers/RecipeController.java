@@ -98,7 +98,7 @@ public class RecipeController {
     }
 
     @GetMapping("/exportRecipes")
-    public ResponseEntity<byte[]> downloadRecipes() throws IOException {
+    public ResponseEntity<byte[]> downloadRecipes() {
         byte[] bytes = recipeService.getAllInBytes();
         if (bytes == null) {
             return ResponseEntity.internalServerError().build();
@@ -115,5 +115,17 @@ public class RecipeController {
         recipeService.importRecipes(recipes);
     }
 
+    @GetMapping("/exportRecipes")
+    public ResponseEntity<byte[]> exportTxt() throws IOException {
+        byte[] bytes = recipeService.exportTxt();
+        if (bytes == null) {
+            return ResponseEntity.internalServerError().build();
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.TEXT_PLAIN)
+                .contentLength(bytes.length)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment: filename = \"info.txt\"")
+                .body(bytes);
+    }
 
 }
